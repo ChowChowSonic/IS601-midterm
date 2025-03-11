@@ -5,7 +5,7 @@ import os
 import sys
 import importlib.util
 from dotenv import load_dotenv
-from app.commands import CommandHandler, MenuCommand
+from app.commands import CommandHandler, MenuCommand, HistoryCommand
 
 class App:
 	"""The main class responsible for loading all plugins and handling commands"""
@@ -57,8 +57,11 @@ class App:
 			logging.info("Loaded plugin %s", k)
 		self.handler.register_command("menu", MenuCommand(plugins.keys()))
 		logging.info("Loaded menu plugin")
+		self.handler.register_command("history", HistoryCommand(App.get_env("HISTORYPATH")))
+		logging.info("Loaded history plugin")
 
 	def execute_command(self, cmd: str, args: list[str]):
 		"""Executes a command with specified args"""
 		self.handler.execute_command(cmd, args)
 		logging.info("Executed command %s with args %s", cmd, args)
+		HistoryCommand.add_to_history(args, cmd)
