@@ -17,6 +17,7 @@ class MenuCommand(Command):
 		self.plugins = plugins
 
 	def execute(self, args):
+		"""Lists all other commands"""
 		for x in self.plugins:
 			print(x)
 
@@ -27,7 +28,12 @@ class HistoryCommand(Command):
 		HistoryCommand.path = path 
 	@classmethod
 	def add_to_history(cls, item: List[str], cmd:str):
-		"""Adds a command to the history"""
+		"""Adds a command to the history. This method is classed 
+		because there will only be one history file, 
+		(accessed via a class variable) so we don't need to make it 
+		instance based. Additionally, if we make this
+		instance based, then there will be no way to call this method
+		should we cast the history command to its superclass"""
 		data={"Command": cmd} 
 		for x in enumerate(item):
 			data[x]=[item[x[0]]]
@@ -36,18 +42,18 @@ class HistoryCommand(Command):
 			df.to_csv(HistoryCommand.path, mode='a', header=False, index=False)
 
 	def execute(self, args:List[str]=[]):
-		"""prints the entire history"""
+		"""prints the entire history. Avoids LBYL by using EAFP"""
 		with open(HistoryCommand.path, 'r', encoding='utf-8') as file:
 			lines = file.readlines()
 			try:
 				val=int(args[0])
-				print(lines[val].replace(',', ' '))
+				print(lines[val].replace(',', ' ').strip())
 				return
 			except ValueError:
 				HistoryCommand.clear_history()
 			except IndexError:
 				for x in lines:
-					print(x.replace(',', ' '))
+					print(x.replace(',', ' ').strip())
 
 	@staticmethod
 	def clear_history():
