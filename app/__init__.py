@@ -9,19 +9,18 @@ from app.commands import CommandHandler, MenuCommand
 
 class App:
 	"""The main class responsible for loading all plugins and handling commands"""
+	settings = {}
 	def __init__(self):
 		"""Initializer for class"""
 		os.makedirs("logs", exist_ok=True)
 		self.handler = CommandHandler()
-		load_dotenv()
-		self.settings = dict(os.environ.items())
-		if os.path.exists(self.get_env("LOGGINGPATH")):
-			logging.config.fileConfig(self.get_env("LOGGINGPATH"), disable_existing_loggers=False)
-		logging.info("App started")
 
-	def get_env(self, name:str):
-		"""Returns an environment variable from the .env file"""
-		return self.settings.get(name, None)
+	@classmethod
+	def get_env(cls, name:str) -> str:
+		"""Returns an environment variable from the .env file. 
+		This is a class method because it doesnt make much sense 
+		to make multiple instances of an ENVIRONMENT (globally accessable) variable"""
+		return cls.settings.get(name, None)
 
 	def _import_plugins(self, plugins_dir:str="plugins"):
 		""" Utilizes EAFP when traversing the plugins directory as we assume by
@@ -53,6 +52,12 @@ class App:
 			logging.info("Loaded plugin %s", format=k)
 		self.handler.register_command("menu", MenuCommand(plugins.keys()))
 		logging.info("Loaded menu plugin")
+		load_dotenv()
+		App.settings = dict(os.environ.items())
+		if os.path.exists(App.get_env("LOGGINGPATH")):
+			logging.config.fileConfig(App.get_env("LOGGINGPATH"), disable_existing_loggers=False)
+		logging.info("App started")
+
 
 	def execute_command(self, cmd: str, args: list[str]):
 		"""Executes a command with specified args"""
