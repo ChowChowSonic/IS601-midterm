@@ -41,25 +41,24 @@ class App:
 					spec.loader.exec_module(module)
 					modules[module_name] = module
 			except FileNotFoundError as e:
-				logging.exception("Failed to load plugin %s: %s", format=(str(entry), str(e)))
+				logging.error("Failed to load plugin %s: %s", str(entry),str(e))
 		return modules
 
 	def start(self):
 		"""Loads all plugins"""
-		plugins = self._import_plugins()
-		for k in plugins:
-			self.handler.register_command(k, getattr(plugins[k], k)())
-			logging.info("Loaded plugin %s", format=k)
-		self.handler.register_command("menu", MenuCommand(plugins.keys()))
-		logging.info("Loaded menu plugin")
 		load_dotenv()
 		App.settings = dict(os.environ.items())
 		if os.path.exists(App.get_env("LOGGINGPATH")):
 			logging.config.fileConfig(App.get_env("LOGGINGPATH"), disable_existing_loggers=False)
 		logging.info("App started")
-
+		plugins = self._import_plugins()
+		for k in plugins:
+			self.handler.register_command(k, getattr(plugins[k], k)())
+			logging.info("Loaded plugin %s", k)
+		self.handler.register_command("menu", MenuCommand(plugins.keys()))
+		logging.info("Loaded menu plugin")
 
 	def execute_command(self, cmd: str, args: list[str]):
 		"""Executes a command with specified args"""
-		logging.info("Executed command %s with args %s", format=(cmd, args))
 		self.handler.execute_command(cmd, args)
+		logging.info("Executed command %s with args %s", cmd, args)
