@@ -50,7 +50,9 @@ class App:
 		plugins = self._import_plugins()
 		for k in plugins:
 			self.handler.register_command(k, getattr(plugins[k], k)())
+			logging.info("Loaded plugin %s", format=k)
 		self.handler.register_command("menu", MenuCommand(plugins.keys()))
+		logging.info("Loaded menu plugin")
 
 	def execute_command(self, cmd: str, args: list[str]):
 		"""Executes a command with specified args"""
