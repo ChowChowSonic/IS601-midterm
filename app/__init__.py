@@ -53,7 +53,7 @@ class App:
 		logging.info("App started")
 		plugins = self._import_plugins()
 		for k in plugins:
-			self.handler.register_command(k, getattr(plugins[k], k)())
+			self.handler.register_command(k.lower(), getattr(plugins[k], k[0].upper()+k[1:])())
 			logging.info("Loaded plugin %s", k)
 		self.handler.register_command("menu", MenuCommand(plugins.keys()))
 		logging.info("Loaded menu plugin")
@@ -62,6 +62,6 @@ class App:
 
 	def execute_command(self, cmd: str, args: list[str]):
 		"""Executes a command with specified args"""
-		self.handler.execute_command(cmd, args)
+		self.handler.execute_command(cmd.lower(), args)
 		logging.info("Executed command %s with args %s", cmd, args)
 		HistoryCommand.add_to_history(args, cmd)
