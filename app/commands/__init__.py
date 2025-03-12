@@ -1,7 +1,8 @@
 """Classes for commands"""
 from typing import List
 import pandas as pd
-import os 
+import os
+from app.env import Env  
 class Command:
 	"""Abstract class that represents a command and what it can do"""
 	def __init__(self):
@@ -23,9 +24,8 @@ class MenuCommand(Command):
 
 class HistoryCommand(Command):
 	"""Command for saving and viewing history"""
-	path = ""
-	def __init__(self, path):
-		HistoryCommand.path = path 
+	def __init__(self):
+		HistoryCommand.path = Env.getenv("HISTORYPATH") 
 	@classmethod
 	def add_to_history(cls, item: List[str], cmd:str):
 		"""Adds a command to the history. This method is classed 
@@ -38,12 +38,12 @@ class HistoryCommand(Command):
 		for x in enumerate(item):
 			data[x]=[item[x[0]]]
 		df = pd.DataFrame(data, index=["column"])
-		with open(HistoryCommand.path, 'a', encoding='utf-8') as file: 
-			df.to_csv(HistoryCommand.path, mode='a', header=False, index=False)
+		with open(Env.getenv("HISTORYPATH"), 'a', encoding='utf-8') as file: 
+			df.to_csv(Env.getenv("HISTORYPATH"), mode='a', header=False, index=False)
 
 	def execute(self, args:List[str]=[]):
 		"""prints the entire history. Avoids LBYL by using EAFP"""
-		with open(HistoryCommand.path, 'r', encoding='utf-8') as file:
+		with open(Env.getenv("HISTORYPATH"), 'r', encoding='utf-8') as file:
 			lines = file.readlines()
 			try:
 				val=int(args[0])
