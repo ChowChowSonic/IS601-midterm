@@ -3,7 +3,7 @@
 import pytest
 from main import calculate_and_print
 from app.commands import Command, CommandHandler, MenuCommand
-
+from app.env import Env
 
 def test_cmd_register():
     """Testing Abstract Syntax Tree"""
@@ -13,6 +13,9 @@ def test_cmd_register():
         x.register_command("test", Command())
         x.execute_command("test", [])
 
+def test_env():
+    """Tests that env variables can be obtained"""
+    assert Env.getenv("TESTENV") == "test"
 
 def test_menu(capsys):
     """Test that the Binary AST class throws an error"""
