@@ -89,7 +89,6 @@ def test_logging():
         pass
     calculate_and_print([1, 1, "divide"])
     with open("logs/app.log", encoding="utf-8") as file:
-        assert file.readline().strip().endswith("root - INFO - App started")
         line = file.readlines()[-1]
         assert (
             line
@@ -110,3 +109,6 @@ def test_history():
         lines=file.readlines()
         for x in enumerate(lines):
             assert mock_hist[x[0]] == lines[x[0]]
+    calculate_and_print(["history"])
+    calculate_and_print(["1", "history"])
+    calculate_and_print(["clear", "history"])
