@@ -4,23 +4,17 @@ import logging
 import os
 import sys
 import importlib.util
-from dotenv import load_dotenv
+from app.env import Env 
 from app.commands import CommandHandler, MenuCommand, HistoryCommand
 
 class App:
 	"""The main class responsible for loading all plugins and handling commands"""
-	settings = {}
 	def __init__(self):
 		"""Initializer for class"""
+		if os.path.exists(Env.getenv("LOGGINGPATH")):
+			logging.config.fileConfig(Env.getenv("LOGGINGPATH"), disable_existing_loggers=False)
 		os.makedirs("logs", exist_ok=True)
 		self.handler = CommandHandler()
-
-	@classmethod
-	def get_env(cls, name:str) -> str:
-		"""Returns an environment variable from the .env file. 
-		This is a class method because it doesnt make much sense 
-		to make multiple instances of an ENVIRONMENT (globally accessable) variable"""
-		return cls.settings.get(name, None)
 
 	def _import_plugins(self, plugins_dir:str="plugins"):
 		""" Utilizes EAFP when traversing the plugins directory as we assume by
@@ -40,24 +34,19 @@ class App:
 					module = importlib.util.module_from_spec(spec)
 					spec.loader.exec_module(module)
 					modules[module_name] = module
-			except FileNotFoundError as e:
-				logging.error("Failed to load plugin %s: %s", str(entry),str(e))
+			except FileNotFoundError as e: #pragma: no cover
+				logging.error("Failed to load plugin %s: %s", str(entry),str(e)) #pragma: no cover
 		return modules
 
 	def start(self):
 		"""Loads all plugins"""
-		load_dotenv()
-		App.settings = dict(os.environ.items())
-		if os.path.exists(App.get_env("LOGGINGPATH")):
-			logging.config.fileConfig(App.get_env("LOGGINGPATH"), disable_existing_loggers=False)
-		logging.info("App started")
 		plugins = self._import_plugins()
 		for k in plugins:
 			self.handler.register_command(k.lower(), getattr(plugins[k], k[0].upper()+k[1:])())
 			logging.info("Loaded plugin %s", k)
 		self.handler.register_command("menu", MenuCommand(plugins.keys()))
 		logging.info("Loaded menu plugin")
-		self.handler.register_command("history", HistoryCommand(App.get_env("HISTORYPATH")))
+		self.handler.register_command("history", HistoryCommand())
 		logging.info("Loaded history plugin")
 
 	def execute_command(self, cmd: str, args: list[str]):
