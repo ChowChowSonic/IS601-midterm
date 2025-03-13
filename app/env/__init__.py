@@ -8,9 +8,7 @@ class Env(Singleton):
     def __init__(self):
         load_dotenv()
         self.settings = dict(os.environ.items())
-        logging.info("App started")
 
-    @staticmethod
-    def getenv(name:str):
+    def getenv(self, name:str):
         """Gets an environment variable from the env instance"""
-        return Env.get_instance().settings[name]
+        return self.settings[name]
