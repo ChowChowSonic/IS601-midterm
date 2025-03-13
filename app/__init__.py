@@ -4,17 +4,20 @@ import logging
 import os
 import sys
 import importlib.util
-from app.env import Env 
+from app.env import Env
 from app.commands import CommandHandler, MenuCommand, HistoryCommand
+from app.historymanager import HistoryManager
 
 class App:
 	"""The main class responsible for loading all plugins and handling commands"""
 	def __init__(self):
 		"""Initializer for class"""
-		if os.path.exists(Env.getenv("LOGGINGPATH")):
-			logging.config.fileConfig(Env.getenv("LOGGINGPATH"), disable_existing_loggers=False)
+		env = Env()
+		if os.path.exists(env.getenv("LOGGINGPATH")):
+			logging.config.fileConfig(env.getenv("LOGGINGPATH"), disable_existing_loggers=False)
 		os.makedirs("logs", exist_ok=True)
 		self.handler = CommandHandler()
+		self.history = HistoryManager()
 
 	def _import_plugins(self, plugins_dir:str="plugins"):
 		""" Utilizes EAFP when traversing the plugins directory as we assume by
@@ -48,9 +51,10 @@ class App:
 		logging.info("Loaded menu plugin")
 		self.handler.register_command("history", HistoryCommand())
 		logging.info("Loaded history plugin")
+		logging.info("App started")
 
 	def execute_command(self, cmd: str, args: list[str]):
 		"""Executes a command with specified args"""
 		self.handler.execute_command(cmd.lower(), args)
 		logging.info("Executed command %s with args %s", cmd, args)
-		HistoryCommand.add_to_history(args, cmd)
+		self.history.append(cmd, args)
