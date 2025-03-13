@@ -3,7 +3,7 @@
 import logging
 import sys
 from app import App
-
+from app.historymanager import HistoryManager
 
 def calculate_and_print(argv: list[str] = []) -> float | int:
     """
@@ -34,11 +34,12 @@ def calculate_and_print(argv: list[str] = []) -> float | int:
         logging.error("Unknown operation passed: %s; Aborting...", argv[-1] if len(argv) > 0 else lst[-1])
     except ValueError:
         print(f"Invalid number input: {argv[0]} or {argv[1]} is not a valid number.")
-        logging.error("Invalid number input entered: %i %i; Aborting...", argv[0], argv[1])
+        logging.error("Invalid number input entered: %s %s; Aborting...", argv[0], argv[1])
     except EOFError:
         # This is to be expected when we pipe stuff in. This is intended
         # behavior so there will be no errors to be logged because of that
         pass
+    HistoryManager().write_history()
 
 if __name__ == "__main__":
     calculate_and_print(sys.argv[1:])  # pragma: no cover
