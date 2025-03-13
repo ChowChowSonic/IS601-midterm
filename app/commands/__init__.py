@@ -1,8 +1,8 @@
 """Classes for commands"""
 from typing import List
 import pandas as pd
-import os
-from app.env import Env  
+import logging
+from app.historymanager import HistoryManager 
 class Command:
 	"""Abstract class that represents a command and what it can do"""
 	def __init__(self):
@@ -25,41 +25,44 @@ class MenuCommand(Command):
 class HistoryCommand(Command):
 	"""Command for saving and viewing history"""
 	def __init__(self):
-		HistoryCommand.path = Env.getenv("HISTORYPATH") 
-	@classmethod
-	def add_to_history(cls, item: List[str], cmd:str):
-		"""Adds a command to the history. This method is classed 
-		because there will only be one history file, 
-		(accessed via a class variable) so we don't need to make it 
-		instance based. Additionally, if we make this
-		instance based, then there will be no way to call this method
-		should we cast the history command to its superclass"""
-		data={"Command": cmd} 
-		for x in enumerate(item):
-			data[x]=[item[x[0]]]
-		df = pd.DataFrame(data, index=["column"])
-		with open(Env.getenv("HISTORYPATH"), 'a', encoding='utf-8') as file: 
-			df.to_csv(Env.getenv("HISTORYPATH"), mode='a', header=False, index=False)
-
+		self.mgr = HistoryManager()
+	
 	def execute(self, args:List[str]=[]):
 		"""prints the entire history. Avoids LBYL by using EAFP"""
-		with open(Env.getenv("HISTORYPATH"), 'r', encoding='utf-8') as file:
-			lines = file.readlines()
-			try:
-				val=int(args[0])
-				print(lines[val].replace(',', ' ').strip())
-				return
-			except ValueError:
-				HistoryCommand.clear_history()
-			except IndexError:
-				for x in lines:
-					print(x.replace(',', ' ').strip())
+		arg1=None
+		try: 
+			a1=args[0]
+			possibilities={
+				"clear":"clear", 
+			}
+			possibilities[a1]
+			self.mgr.clear_history()
+			return
+		except KeyError:
+			logging.info("a1 parsed int successfully")
+			arg1=int(a1)
+		except IndexError: 
+			logging.info("loading history")
+			self.mgr.loadHistory()
+			return
+		
+		try:
+			a2 = args[1]
+			possibilities = {
+				"delete":self.mgr.delete_command, 
+				"get":self.mgr.load_command 
+			}
+			x = possibilities[a2](arg1)
+			if x is not None:
+				print(x)
+		except KeyError:
+			logging.error("Unknown command passed to history %s", a2)
+			print("Unknown command passed to history", a2)
+			return
+		except IndexError:
+			print(self.mgr.load_command(a1)) 
+		
 
-	@staticmethod
-	def clear_history():
-		"""Clears the history"""
-		with open(HistoryCommand.path, 'w', encoding='utf-8'):
-			pass
 
 class CommandHandler:
 	"""Handles commands"""
@@ -72,4 +75,5 @@ class CommandHandler:
 
 	def execute_command(self, name:str, args:list[str]):
 		"""Executes a command with a specified name and a list of args"""
+		logging.info("command & args passed to commandHandler: %s %s", name, args)
 		self.commands[name].execute(args)
