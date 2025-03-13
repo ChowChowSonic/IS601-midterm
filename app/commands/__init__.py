@@ -59,10 +59,6 @@ class HistoryCommand(Command):
 			logging.error("Unknown command passed to history %s", a2)
 			print("Unknown command passed to history", a2)
 			return
-		except IndexError:
-			print(self.mgr.load_command(a1)) 
-		
-
 
 class CommandHandler:
 	"""Handles commands"""

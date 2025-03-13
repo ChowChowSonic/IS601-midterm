@@ -12,9 +12,8 @@ class HistoryManager(Singleton):
 			file = env.getenv("HISTORYPATH")
 			try:
 				HistoryManager._df = pd.read_csv(file, header=None)
-				
-			except pd.errors.EmptyDataError as e:
-				HistoryManager._df = pd.DataFrame([], columns=[1,2,3,4,5,6,7,8,9])
+			except pd.errors.EmptyDataError as e:	#pragma: no cover
+				HistoryManager._df = pd.DataFrame([], columns=[1,2,3,4,5,6,7,8,9]) #pragma: no cover
 
 	def append(self, cmd:str, item:List[str]): 
 		"""Adds a command to the history. This method is classed 
