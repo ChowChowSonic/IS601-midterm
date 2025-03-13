@@ -3,7 +3,7 @@
 import sys
 import pytest
 from main import calculate_and_print
-
+from app.env import Env
 
 # Parameterize the test function to cover different operations and scenarios, including errors
 @pytest.mark.parametrize(
@@ -103,12 +103,15 @@ def test_history():
     calculate_and_print([4, 2, "divide"])
     calculate_and_print([4, 2, "multiply"])
 
-    with open("logs/history.csv", 'r', encoding='utf-8') as file:
-        mock_hist=["history,clear,,,,,,,,\n", "\n", "divide,1,1,,,,,,,\n",
-                   "\n", "divide,4,2,,,,,,,\n", "\n", "multiply,4,2,,,,,,,\n", "\n"]
+    with open(Env().getenv("HISTORYPATH"), 'r', encoding='utf-8') as file:
+        mock_hist=["history,clear,,,,,,,,\n", "divide,1,1,,,,,,,\n",
+                   "divide,4,2,,,,,,,\n", "multiply,4,2,,,,,,,\n"]
         lines=file.readlines()
+        ctr=0
         for x in enumerate(lines):
-            assert mock_hist[x[0]] == lines[x[0]]
+            if x[1].strip() != "":
+                assert mock_hist[ctr] == lines[x[0]]
+                ctr= ctr+1
     calculate_and_print(["history"])
     calculate_and_print(["1", "get", "history"])
     calculate_and_print(["1", "delete", "history"])
