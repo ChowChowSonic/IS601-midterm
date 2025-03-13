@@ -98,14 +98,14 @@ def test_logging():
 
 def test_history():
     """Tests the history function by reading off the CSV directly"""
-    with open("logs/history.csv", 'w', encoding='utf-8'):
-        pass
+    calculate_and_print(["clear", "history"])
     calculate_and_print([1, 1, "divide"])
     calculate_and_print([4, 2, "divide"])
     calculate_and_print([4, 2, "multiply"])
 
     with open("logs/history.csv", 'r', encoding='utf-8') as file:
-        mock_hist=["divide,1,1\n", "divide,4,2\n", "multiply,4,2\n"]
+        mock_hist=["history,clear,,,,,,,,\n", "\n", "divide,1,1,,,,,,,\n",
+                   "\n", "divide,4,2,,,,,,,\n", "\n", "multiply,4,2,,,,,,,\n", "\n"]
         lines=file.readlines()
         for x in enumerate(lines):
             assert mock_hist[x[0]] == lines[x[0]]
