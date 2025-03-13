@@ -110,5 +110,6 @@ def test_history():
         for x in enumerate(lines):
             assert mock_hist[x[0]] == lines[x[0]]
     calculate_and_print(["history"])
-    calculate_and_print(["1", "history"])
+    calculate_and_print(["1", "get", "history"])
+    calculate_and_print(["1", "delete", "history"])
     calculate_and_print(["clear", "history"])

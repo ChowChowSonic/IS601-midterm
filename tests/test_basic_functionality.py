@@ -15,7 +15,7 @@ def test_cmd_register():
 
 def test_env():
     """Tests that env variables can be obtained"""
-    assert Env.getenv("TESTENV") == "test"
+    assert Env().getenv("TESTENV") == "test"
 
 def test_menu(capsys):
     """Test that the Binary AST class throws an error"""
