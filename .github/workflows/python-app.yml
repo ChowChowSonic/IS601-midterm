@@ -30,7 +30,7 @@ jobs:
         echo 'TESTENV="test"' > .env
         mkdir logs
         echo 'HISTORYPATH="logs/history.csv"'>>.env
-        echo 'LOGGINGPATH="logs/app.log"'>>.env
+        echo 'LOGGINGPATH="logging.conf"'>>.env
         touch logs/app.log logs/history.csv
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest --pylint
