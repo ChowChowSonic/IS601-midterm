@@ -35,7 +35,7 @@ class HistoryManager(Singleton):
 		HistoryManager._df.drop([n], inplace=True)
 	def load_command(self, n:int): 
 		"""Loads a single command from the history"""
-		return HistoryManager._df[n]
+		return HistoryManager._df.T[n]
 	def clear_history(self):
 		"""Clears the history"""
 		HistoryManager._df = pd.DataFrame(columns=range(10))
